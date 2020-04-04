@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
   
   struct stat sbuf;
   long file_len;
-  void (*fptr)(void);
+  void (*fptr)(void); //
   
   if(argc < 3)
     usage(argv[0]);
