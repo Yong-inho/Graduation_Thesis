@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   if(argc < 3)
     usage(argv[0]);
   
-  if(stat(argv[2], &sbuf)) //
+  if(stat(argv[2], &sbuf)) 
     barf("failed to stat file\n");
   
   file_len = sbuf.st_size;
