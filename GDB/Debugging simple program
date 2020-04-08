@@ -13,7 +13,7 @@ int main(void) {
 ------------------------------
 /*
  * assembly code
- *    ~$ gdb -q ./test
+ *    ~$ gdb -q ./a.out
  * (gdb) disassemble main
  */
 push  rbp
@@ -87,8 +87,30 @@ Second, is the string "Hello, world' stored in memory lacated at [rip+0xa2]?
 0x5555555546f4: "hello, world!"
 ------------------------------
  
-This answers to second question. But I failed to answer to first qeustion.
- 
+This answers to second question. 
+
+------------------------------
+/*
+ * assembly code of a.out when compiled with -Og flag
+ *
+ */
+push rbx
+mov ebx,0x0
+jmp 0x651 <main+23>
+lea rdi,[rip+0x9b]
+call 0x510 <puts@plt>
+add ebx,0x1
+cmp ebx,0x9
+jle 0x642 <main+8>
+mov eax,0x0
+pop rbx
+ret
+------------------------------
+
+Here, the variable 'i' is stored in register ebx.
+So, 'i' is stored in memory because of compiler's optimization.
+But I can't find the reason why this kind of optimization is done.
+
 ------------------------------
 /*
  * result of executing next four instructions
