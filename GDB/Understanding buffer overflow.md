@@ -80,5 +80,6 @@ Here, we have to focus the value of 0x7fffffffdf48~f(in italic).
 0x000055555555481e <+77>:  test eax,eax
 ...
 ```
-_0x000055555555481e_ is return adress when function check_authentication is end.
+_0x000055555555481e_ is return adress when function check_authentication is end.   
 We will discuss about stack frame in next document.
+  
