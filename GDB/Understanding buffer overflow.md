@@ -41,21 +41,21 @@ This program is so simple and looks like granting access only the case of
 entering "brillig" or "outgrabe" as an argument.  
 But by entering 30 times of 'A', we can exploit this program.  
 Let's take a look why this happens.  
-```c
+```
 /*
  * compiled with -fno-stack-protector option
  * set breakpoint at strcpy(password_buffer, password);
  * (gdb) run AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
  */
- ```
+ 
 >(gdb) print &auth_flag  
 >$1 = (int *) 0x7fffffffdf3c  
 >(gdb) print &password_buffer  
 >$2 = (char (*)[16]) 0x7fffffffdf20  
-  
-By debugging the program, we can find the address of auth_flag is 28 bytes after   
-than password_buffer. Since strcpy() does not check boundary, if we give more than  
-28 bytes(not too much)length of any string as argument, auth_flag will be set to nonzero.  
+```
+By debugging the program, we can find the address of auth_flag is 28 bytes after    
+than password_buffer. Since strcpy() does not check boundary, if we give more than   
+28 bytes(not too much)length of any string as argument, auth_flag will be set to nonzero.   
   
 /*
  * set breakpoint at return auth_flag;
