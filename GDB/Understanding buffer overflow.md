@@ -1,20 +1,20 @@
 /*
  * Source code for debugging
  */
->#include <stdio.h>
->#include <stdlib.h>
->#include <string.h>
+>#include <stdio.h>  
+>#include <stdlib.h>  
+>#include <string.h>  
 
->int check_authentication(char* password) {
->  int auth_flag = 0;
->  char password_buffer[16];
->  
->  strcpy(password_buffer, password);
->  
->  if(strcmp(passsword_buffer, "brillig") == 0)
->    auth_flag = 1;
->  if(strcmp(password_buffer, "outgrabe") == 0)
->    auth_flag = 1;
+>int check_authentication(char* password) {  
+>  int auth_flag = 0;  
+>  char password_buffer[16];  
+>    
+>  strcpy(password_buffer, password);  
+>    
+>  if(strcmp(passsword_buffer, "brillig") == 0)  
+>    auth_flag = 1;  
+>  if(strcmp(password_buffer, "outgrabe") == 0)  
+>    auth_flag = 1;  
 >  
 >  return auth_flag;
 >}
