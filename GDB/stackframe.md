@@ -25,7 +25,7 @@ This is stackframe for check_authentication() in stack. We can separate this by 
 ----------------------------------
 0x7fffffffdf10: 0x00007fffffffdf78 -> Unknown(maybe padding)
 ----------------------------------
-0x7fffffffdf18: 0x00007fffffffe3a4 -> Func argument ('A' x 30)
+0x7fffffffdf18: 0x00007fffffffe3a4 -> Func argument (address of 'A' x 30)
 ----------------------------------
 0x7fffffffdf20: 0x4141414141414141 -> local variable(password_buffer)
 0x7fffffffdf28: 0x4141414141414141
