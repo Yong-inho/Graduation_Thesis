@@ -81,9 +81,9 @@ Second, is the string "Hello, world' stored in memory lacated at [rip+0xa2]?
 
 ```
 /*
- * (gdb) x/s 0x5555555546f4
  * $rip + 0xa2 = 0x555555554652 + 0xa2 = 0x5555555546f4
  * $rip != 0x555555554642 since curruntly I'm stopped at <main+8>
+ * (gdb) x/s 0x5555555546f4
  */
 0x5555555546f4: "hello, world!"
 ```
