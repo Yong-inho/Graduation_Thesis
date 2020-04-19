@@ -43,12 +43,16 @@ Here, we have to focus the value of 0x7fffffffdf48~f(in italic).
 ```
 _0x000055555555481e_ is return adress when function check_authentication is end.   
  
+```
 /*
  * set breakpoint at if(check_authenticatioin(argv[1])) {
  */
 (gdb)x/32xw $rsp
 0x7fffffffdf50: .....
 0x7fffffffdf60: .....
+```
+
+```
 /*
  * set breakpoint at return auth_flag;
  */
@@ -58,9 +62,11 @@ _0x000055555555481e_ is return adress when function check_authentication is end.
 0x7fffffffdf30: 0x41414141  0x41414141  0x41414141  0x00004141
 0x7fffffffdf40: 0xffffdf60  0x00007fff  0x5555481e  0x00005555
 0x7fffffffdf50: 0xffffe048  0x00007fff  0x00000000  0x00000002
-As you can see, 0x7fffffffdf10 ~ 0x7fffffffdf40 is allocated after the function check_authentication() called.
+```
+As you can see, 0x7fffffffdf10 ~ 0x7fffffffdf40 is allocated after the function check_authentication() called.   
 This is stackframe for check_authentication() in stack. We can separate this by 7 parts.
 
+```
 ----------------------------------
 0x7fffffffdf10: 0x00007fffffffdf78 -> Unknown(maybe padding)
 ----------------------------------
@@ -78,3 +84,4 @@ This is stackframe for check_authentication() in stack. We can separate this by 
 ----------------------------------
 0x7fffffffdf48: 0x000055555555481e -> return address
 ----------------------------------
+```
