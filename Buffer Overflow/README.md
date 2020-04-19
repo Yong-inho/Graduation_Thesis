@@ -1,43 +1,4 @@
-```c
-/*
- *Source code for debugging  
- */
-#include <stdio.h>  
-#include <stdlib.h>  
-#include <string.h>  
-
-int check_authentication(char* password) {  
-  int auth_flag = 0;  
-  char password_buffer[16];  
-    
-  strcpy(password_buffer, password);  
-    
-  if(strcmp(passsword_buffer, "brillig") == 0)  
-    auth_flag = 1;  
-  if(strcmp(password_buffer, "outgrabe") == 0)  
-   auth_flag = 1;  
-  
-  return auth_flag;
-}
-
-int main(int argc, char* argv[]) {
-  if(argc <2) {
-    printf("Usage : %s <password>\n", argv[0]);
-    exit(0);
-}
-  
-  if(check_authentication(argv[1])) {
-    printf("\n-=-=-=-=-=-=-=-=-=-\n");
-    printf("Access Granted.\n");
-    printf("-=-=-=-=-=-=-=-=-=-\n");
-  }
-  else {
-   printf("\nAccess Denied.\n");
-  }
-}
-```
-
-This program is so simple and looks like granting access only the case of
+'authentication.c' is so simple and looks like granting access only the case of
 entering "brillig" or "outgrabe" as an argument.  
 But by entering 30 times of 'A', we can exploit this program.  
 Let's take a look why this happens.  
@@ -81,5 +42,4 @@ Here, we have to focus the value of 0x7fffffffdf48~f(in italic).
 ...
 ```
 _0x000055555555481e_ is return adress when function check_authentication is end.   
-We will discuss about stack frame in next document.
   
