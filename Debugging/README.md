@@ -1,6 +1,6 @@
 ```
 /*
- * assembly code
+ * assembly code of debugging.c
  *    ~$ gdb -q ./a.out
  * (gdb) disassemble main
  */
