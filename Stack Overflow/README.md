@@ -52,5 +52,5 @@ return address of victim's main() stack will be overwritten to the address of so
 ## Problem
 
 Almost of modern processor use 64-bit address. So the "ADDRESS" includes null byte.   
-This prevents argument for 'victim' being long enough to overwrite return address of victim's main() stack frame.
+This prevents argument for 'victim' being long enough to overwrite return address of victim's main() stack frame by repeating "ADDRESS".
 So this kind of attack is not practical today.
