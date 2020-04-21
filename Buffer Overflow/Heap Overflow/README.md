@@ -14,7 +14,7 @@ So I'll create a root user by writing user_info in '/etc/passwd'.
 
 ## Procedure
 
-1. User_info format
+1. User_info format   
   In /etc/passwd...   
   ```
   root:x:0:0:root:/root:/bin/bash
@@ -41,7 +41,7 @@ So I'll create a root user by writing user_info in '/etc/passwd'.
   So the password for 'myroot' is 123456 and when we enter "123456" for myroot's password, system will check    
   myroot's password field and take "XX" to salt and generate "XXVgr9a1cu6os".   
   
-2. Symbolic file link
+2. Symbolic file link   
   As we can see, the string for user_info should be end with '/bin/bash'(login shell).    
   But to overwrite 'datafile' to '/etc/passwd' by using overflow, argument which is passed to 'victim' should be end with '/etc/passwd'   
   There is any sentence which ends with both '/bin/bash' and '/etc/passwd'.   
