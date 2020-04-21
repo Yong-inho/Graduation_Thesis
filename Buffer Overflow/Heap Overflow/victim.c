@@ -7,14 +7,14 @@ int main(int argc, char* argv[]) {
   int fd;
   char* buffer, *datafile;
   
-  buffer = (char*)malloc(100);
-  datafile = (char*)malloc(20);
+  buffer = (char*)malloc(100); // vulnerable point 1
+  datafile = (char*)malloc(20); // vulnerable point 2
   strcpy(datafile, "/etc/notes");
   
   if(argc < 2)
     printf("Usage : %s <data to add to %s>\n", argv[0], datafile);
   
-  strcpy(buffer, argv[1]); // vulnerable  point!
+  strcpy(buffer, argv[1]); // vulnerable  point 3
   
   fd = open(datafile, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
   if(fd == -1)
