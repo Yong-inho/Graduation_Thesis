@@ -44,7 +44,7 @@ return address of victim's main() stack will be overwritten to the address of so
 3. Executing 'victim'   
    Line 34 : system(command) is same to    
    ```
-   ~$:./victim $('print "\x90" x 60 . "\x31\xc0.....\xcd\x80" . "ADDRESS" x 17')
+   ~$:./victim $(perl -e 'print "\x90" x 60 . "\x31\xc0.....\xcd\x80" . "ADDRESS" x 17')
    ```
    When strcpy in victim's main() is executed, return address in main()'s stack frame will be overwritten to "ADDRESS"   
    This cause shellcode to be run when victim's main() is end.
