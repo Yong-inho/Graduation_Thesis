@@ -25,5 +25,5 @@ yong:x:1000:1000:yong,,,:/home/yong:/bin/bash
 ```
 Each field is separated by colon -> login name:password:uid:gid:user name:home directory:login shell   
 Password field is substituted by 'x' because of security.   
-Real value of this field is H(password, salt) where H() is hash and salt is arbitrary two alphabets, and stored in shadow file.   
+In linux, real value of this field is H(password, salt) where H() is hash and salt is arbitrary two alphabets, and stored in shadow file.   
 If the password of 'yong' is 123456 and salt is "XX", then x is H("123456","XX").  
