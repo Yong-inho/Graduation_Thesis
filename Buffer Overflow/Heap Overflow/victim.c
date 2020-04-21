@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   if(argc < 2)
     printf("Usage : %s <data to add to %s>\n", argv[0], datafile);
   
-  strcpy(buffer, argv[1]);
+  strcpy(buffer, argv[1]); // vulnerable  point!
   
   fd = open(datafile, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
   if(fd == -1)
