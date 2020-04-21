@@ -32,7 +32,7 @@ return address of victim's main() stack will be overwritten to the address of so
    ```
    By executing above, we can find a offset which makes &i-offset == address of somewhere of nopsled 
    
-2. Making string (in exploit_victim.c)
+2. Making string (in exploit_victim.c)   
    Line 14 : char* command and char* buffer are declared.   
    Line 20 - 24 : Memory for 'command' is allocated, string "./victim '" is stored and    
    the address of 'buffer' is set to right after 'command'.   
@@ -52,5 +52,5 @@ return address of victim's main() stack will be overwritten to the address of so
 ## Problem
 
 Almost of modern processor use 64-bit address. So the "ADDRESS" includes null byte.   
-This prevents argument for 'victim' being long enough to overwrite return address of victim's main() stack frame by repeating "ADDRESS".
+This prevents argument for 'victim' being long enough to overwrite return address of victim's main() stack frame by repeating "ADDRESS".   
 So this kind of attack is not practical today.
