@@ -10,7 +10,7 @@ So I will overwrite the return address of main()'s stack frame to the address of
 To overwrite return address, I'll run another program 'exploit_victim' to execute 'victim' by calling system().    
 I'll pass a string like <figure 1> as the argument of system().    
 
-![String](https://user-images.githubusercontent.com/62104730/79855029-58ef4480-8405-11ea-8251-e083a728ac04.JPG width = "50%" height = "50%") <figure 1. char* command>    
+![<figure 1. char* command>](https://user-images.githubusercontent.com/62104730/79855029-58ef4480-8405-11ea-8251-e083a728ac04.JPG)    
 
 Then shellcode will be in system()'s stack frame and    
 return address of victim's main() stack will be overwritten to the address of somewhere in nop sled in system()'s stack frame.   
