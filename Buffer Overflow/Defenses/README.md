@@ -1,6 +1,11 @@
-## Canary Value (Overflow Detection)
+## Canary Value (Overflow Detection)   
 
-## X^W
+...
 
-## Data Execution Prevention (DEP)
+## X^W   
 
+...
+
+## Data Execution Prevention (DEP)   
+
+...
