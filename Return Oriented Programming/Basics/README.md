@@ -2,7 +2,7 @@
 
 ### Relocotable Object File
 
-<img src="https://user-images.githubusercontent.com/62104730/80202863-38232b00-8661-11ea-8480-2591fbcd7af2.jpg" width="50%" height="50%" title="Relocatable Object File Format" alt="RubberDuck"></img>
+<img src="https://user-images.githubusercontent.com/62104730/80202863-38232b00-8661-11ea-8480-2591fbcd7af2.jpg" width="50%" height="50%" title="Relocatable Object File" alt="RubberDuck"></img>
 
 * ELF header
 Begins with a 16-byte sequence that describes...
@@ -38,4 +38,16 @@ Contains a fixed-size entry for each section in the object file
     in the section headers -> sequence of null-terminated character strings.
     
 ### Executable Object File
+
+<img src="https://user-images.githubusercontent.com/62104730/80204457-dca66c80-8663-11ea-9bbe-7c7dd016e5e9.jpg" width="50%" height="50%" title="Executable Object File" alt="RubberDuck"></img>
+
+* ELF header
+The program's entry point is added -> always the address of \_start function
+
+* .init section
+Defines a small fucntion, called \_init, that will be called by the program's initialization code.
+
+* Since the executable is fully linked, it needs no .rel sections.
+
+### Linux x86-64 run-time memory image
 
