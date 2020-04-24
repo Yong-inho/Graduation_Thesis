@@ -1,2 +1,5 @@
 # Graduation_Thesis
-Graduation Thesis
+
+Research note for graduation thesis
+
+Yong in ho, Sungkyunkwan university
