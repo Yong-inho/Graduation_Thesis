@@ -8,21 +8,22 @@
 ## Blueprint   
    
 In victim.c line 25, there is strcpy function.   
-So I will overwrite the return address of main()'s stack frame to the address of shellcode which executes /bin/bash.   
-To overwrite return address, I'll run another program 'exploit_victim' to execute 'victim' by calling system().    
-I'll pass a string like below as the argument of system().    
+So I will overwrite the return address of main()'s stack frame in victim's address space   
+to the address of shellcode which executes /bin/bash.   
+To overwrite the return address, I'll run another process 'exploit_victim' to execute 'victim' by calling system().    
+I'll pass a string like below as the command line argument of 'victim'    
 
 >./victim 'nopsled + shellcode + address to return(somewhere in nopsled)'    
 
-Then shellcode will be in system()'s stack frame and    
-return address of victim's main() stack will be overwritten to the address of somewhere in nop sled in system()'s stack frame.   
+Then the shellcode will be in the victim's address space and return address of victim's main() stack frame    
+will be overwritten to the address of somewhere in nop sled when strcpy() called in 'victim'
 
 ## Procedure   
 
-1. Finding somewhere in nopsled   
-   Since system()'s stack frame will be on main()'s stack frame, varible 'i' in main(),      
-   exploit_victim.c is defined as a frame of reference.   
-   We can set variable 'offset' by passing argument when executing exploit_victim.   
+1. Finding somewhere in nop sled   
+   Since victim's address space will be located at lower address then main()'s stack frame,    
+   varible 'i' in main(), exploit_victim.c is defined as a frame of reference.   
+   We can set variable 'offset' by passing argument when executing 'exploit_victim'.   
    ```
    ~$:for i in $(0 30 3000)
      >do
