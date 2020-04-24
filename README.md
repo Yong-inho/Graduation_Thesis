@@ -1,4 +1,4 @@
-# Graduation_Thesis
+# Research note
 
 Research note for graduation thesis
 
