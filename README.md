@@ -1,5 +1,3 @@
-# Research note
-
-Research note for graduation thesis
+# Research note for graduation thesis
 
 Yong in ho, Sungkyunkwan university
