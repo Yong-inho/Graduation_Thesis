@@ -16,6 +16,9 @@ int main(int argc, char* argv[]) {
   
   strcpy(buffer, argv[1]); // vulnerable  point 3
   
+  printf("[DEBUG] buffer    @ %p: \'%s\'\n", buffer, buffer);
+  printf("[DEBUG] datafile  @ %p: \'%s\'\n", datafile, datafile);
+  
   fd = open(datafile, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
   if(fd == -1)
     perror("in main() open()");
