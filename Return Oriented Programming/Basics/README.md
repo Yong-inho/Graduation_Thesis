@@ -39,7 +39,7 @@ Contains a fixed-size entry for each section in the object file
     
 ### Executable Object File
 
-<img src="https://user-images.githubusercontent.com/62104730/80204457-dca66c80-8663-11ea-9bbe-7c7dd016e5e9.jpg" width="50%" height="50%" title="Executable Object File" alt="RubberDuck"></img>
+<img src="https://user-images.githubusercontent.com/62104730/80204457-dca66c80-8663-11ea-9bbe-7c7dd016e5e9.jpg" width="80%" height="80%" title="Executable Object File" alt="RubberDuck"></img>
 
 * ELF header
 The program's entry point is added -> always the address of \_start function
@@ -50,4 +50,6 @@ Defines a small fucntion, called \_init, that will be called by the program's in
 * Since the executable is fully linked, it needs no .rel sections.
 
 ### Linux x86-64 run-time memory image
+
+<img src="https://user-images.githubusercontent.com/62104730/80204951-c4831d00-8664-11ea-8b0c-397232e08b94.jpg" width="70%" height="70%" title="Linux x86-64 run-time memory image" alt="RubberDuck"></img>
 
