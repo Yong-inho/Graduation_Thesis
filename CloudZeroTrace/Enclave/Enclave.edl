@@ -1,0 +1,29 @@
+enclave {
+    include "../Include/user_types.h" 
+    
+    from "Edger8rSyntax/Types.edl" import *;
+    from "Edger8rSyntax/Pointers.edl" import *;
+    from "Edger8rSyntax/Arrays.edl" import *;
+    from "Edger8rSyntax/Functions.edl" import *;
+
+    from "TrustedLibrary/Libc.edl" import *;
+    from "TrustedLibrary/Libcxx.edl" import ecall_exception, ecall_map;
+    from "TrustedLibrary/Thread.edl" import *;
+
+    trusted {
+        public uint8_t ecall_createNewORAM(uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, int8_t recursion_levels, uint8_t Z);
+        public void ecall_accessInterface([in, size = request_size]unsigned char *encrypted_request, [out, size = response_size]unsigned char *encrypted_response, [in, size = tag_size]unsigned char *tag_in, [out, size = tag_size]unsigned char *tag_out, uint32_t request_size, uint32_t response_size, uint32_t tag_size);
+        //public int8_t InitializeKeys([out, size = size_bin]unsigned char *bin_x, [out, size = size_bin]unsigned char *bin_y, [out, size = size_bin]unsigned char *bin_r, [out, size = size_bin]unsigned char *bin_s, uint32_t size_bin);
+    };
+    
+    untrusted {
+        void ocall_print_string([in, string]const char *str);
+        void ocall_print_character([in, string]const char *c);
+        void ocall_print_uint(uint64_t i);
+        uint8_t ocall_uploadBucket([in,size = bucket_size] unsigned char* serialized_bucket, uint32_t bucket_size , uint32_t label, [in,size = hash_size] unsigned char* hash, uint32_t hash_size , uint32_t size_for_level, uint8_t recursion_level);
+        uint8_t ocall_downloadBucket([out,size = bucket_size] unsigned char* serialized_bucket, uint32_t bucket_size , uint32_t label, [out,size = hash_size] unsigned char* hash, uint32_t hash_size, uint32_t size_for_level, uint8_t level);
+        uint8_t ocall_downloadPath([out,size = path_size] unsigned char* serialized_path, uint32_t path_size , uint32_t label,[out,size = path_hash_size] unsigned char *path_hash, uint32_t path_hash_size, uint8_t level, uint32_t D_lev);
+        uint8_t ocall_uploadPath([in,size = path_size] unsigned char* serialized_path, uint32_t path_size , uint32_t label, [in,size = path_hash_size] unsigned char *path_hash, uint32_t path_hash_size, uint8_t level, uint32_t D_level);
+        void ocall_buildFetchChildHash(uint32_t left, uint32_t right, [out, size=hash_size] unsigned char* lchild, [out, size=hash_size] unsigned char* rchild, uint32_t hash_size, uint32_t recursion_level);
+    };
+};
