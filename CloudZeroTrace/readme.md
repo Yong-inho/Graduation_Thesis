@@ -1,4 +1,4 @@
-# Oblivious cache for SEDRA
+# Oblivious cache
 
 ## Build 
 - make
