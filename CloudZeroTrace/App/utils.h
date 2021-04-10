@@ -1,31 +1,122 @@
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#pragma once
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <openssl/ec.h>
-#include <openssl/ecdh.h>
-#include <openssl/ecdsa.h>
-#include <openssl/conf.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/obj_mac.h>
+#include "sgx_error.h"
+#include "sgx_eid.h"     /* sgx_enclave_id_t */
 
-#include "../global_config.h"
+#ifndef TRUE
+# define TRUE 1
+#endif
 
-uint32_t computeCiphertextSize(uint32_t data_size);
+#ifndef FALSE
+# define FALSE 0
+#endif
 
-int AES_GCM_128_encrypt (unsigned char *plaintext, int plaintext_len, unsigned char *aad,
-        int aad_len, unsigned char *key, unsigned char *iv, int iv_len,
-        unsigned char *ciphertext, unsigned char *tag);
-int AES_GCM_128_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
-        int aad_len, unsigned char *tag, unsigned char *key, unsigned char *iv,
-        int iv_len, unsigned char *plaintext);
+#if defined(_MSC_VER)
+#define TOKEN_FILENAME   "Enclave.token"
+#define ENCLAVE_FILENAME "Enclave.signed.dll"
+#elif defined(__GNUC__)
+#define TOKEN_FILENAME   "enclave.token"
+#define ENCLAVE_FILENAME "enclave.signed.so"
+#endif
 
-//int encryptRequest(int request_id, char op_type, unsigned char *data, uint32_t data_size, unsigned char *encrypted_request, unsigned char *tag, uint32_t request_size);
-int encryptRequest(unsigned char *did, char op_type, unsigned char *data, uint32_t data_size, unsigned char *encrypted_request, unsigned char *tag, uint32_t request_size);
-int extractResponse(unsigned char *encrypted_response, unsigned char *tag, int response_size, unsigned char *data_out);
+void print_error_message(sgx_status_t ret);
+int initialize_enclave(sgx_enclave_id_t *eid);
 
-void serializeRequest(unsigned char *did, char op_type, unsigned char *data, uint32_t data_size, unsigned char* serialized_request);
+#if defined(_MSC_VER)
+int query_sgx_status();
+#endif
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+//extern sgx_enclave_id_t global_eid;    /* global enclave id */
+
+typedef struct _sgx_errlist_t {
+    sgx_status_t err;
+    const char *msg;
+    const char *sug; /* Suggestion */
+} sgx_errlist_t;
+
+/* Error code returned by sgx_create_enclave */
+static sgx_errlist_t sgx_errlist[] = {
+    {
+        SGX_ERROR_UNEXPECTED,
+        "Unexpected error occurred.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_PARAMETER,
+        "Invalid parameter.",
+        NULL
+    },
+    {
+        SGX_ERROR_OUT_OF_MEMORY,
+        "Out of memory.",
+        NULL
+    },
+    {
+        SGX_ERROR_ENCLAVE_LOST,
+        "Power transition occurred.",
+        "Please refer to the sample \"PowerTransition\" for details."
+    },
+    {
+        SGX_ERROR_INVALID_ENCLAVE,
+        "Invalid enclave image.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_ENCLAVE_ID,
+        "Invalid enclave identification.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_SIGNATURE,
+        "Invalid enclave signature.",
+        NULL
+    },
+    {
+        SGX_ERROR_OUT_OF_EPC,
+        "Out of EPC memory.",
+        NULL
+    },
+    {
+        SGX_ERROR_NO_DEVICE,
+        "Invalid SGX device.",
+        "Please make sure SGX module is enabled in the BIOS, and install SGX driver afterwards."
+    },
+    {
+        SGX_ERROR_MEMORY_MAP_CONFLICT,
+        "Memory map conflicted.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_METADATA,
+        "Invalid enclave metadata.",
+        NULL
+    },
+    {
+        SGX_ERROR_DEVICE_BUSY,
+        "SGX device was busy.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_VERSION,
+        "Enclave version was invalid.",
+        NULL
+    },
+    {
+        SGX_ERROR_INVALID_ATTRIBUTE,
+        "Enclave was not authorized.",
+        NULL
+    },
+    {
+        SGX_ERROR_ENCLAVE_FILE_ACCESS,
+        "Can't open enclave file.",
+        NULL
+    },
+};
+
+#if defined(__cplusplus)
+}
 #endif

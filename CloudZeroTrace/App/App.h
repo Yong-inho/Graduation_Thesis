@@ -17,10 +17,8 @@
 # define FALSE 0
 #endif
 
-# define TOKEN_FILE   "enclave.token"
-# define ENCLAVE_FILE "enclave.signed.so"
 
-extern sgx_enclave_id_t global_eid;
+extern sgx_enclave_id_t global_eid;    /* global enclave id */
 
 #if defined(__cplusplus)
 extern "C" {

@@ -455,6 +455,7 @@ void ORAMTree::aes_enc_serialized(unsigned char* decrypted_block, uint32_t data_
   free(ctr);
 }
 
+#ifdef OC_DEBUG
 void ORAMTree::print_pmap0(){
   uint32_t p = 0;
   printf("Pmap0 = \n");
@@ -595,4 +596,4 @@ void ORAMTree::showPath_reverse(unsigned char *decrypted_path, uint8_t Z, uint32
     }
   }
 }
-
+#endif

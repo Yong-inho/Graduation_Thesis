@@ -88,6 +88,8 @@ uint32_t Stash::stashOccupancy() {
     return count;
 }
 
+#ifdef OC_DEBUG
+
 uint32_t Stash::displayStashContents(uint64_t nlevel, bool recursive_block) {
     uint32_t count = 0, cntr = 1;
     nodev2 *iter = getStart();
@@ -137,3 +139,5 @@ uint32_t Stash::displayStashContents(uint64_t nlevel, bool recursive_block) {
     ocall_print_string("\n");
     return count;
 }
+
+#endif

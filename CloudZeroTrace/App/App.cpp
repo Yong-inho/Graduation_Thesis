@@ -4,130 +4,44 @@
 #include <unistd.h>
 #include <pwd.h>
 
-#include "App.h"
-#include "Globals.h"
+#include "utils.h"
 
-#define MAX_PATH FILENAME_MAX
+#include "sgx_urts.h"     /* sgx_enclave_id_t */
+#include "Enclave_u.h"
 
+sgx_enclave_id_t global_eid;
+
+/***** mbedtls *****/
+#include "mbedtls/error.h"
+#include "mbedtls/net.h"
+#include "mbedtls/ssl.h"
+
+#include "mbedtls_net.c"
+
+#include "ssl_context.h"
+
+#define mbedtls_fprintf fprintf
+#define mbedtls_printf printf
+#define mbedtls_snprintf snprintf
+
+/***** thread *****/
+#include <pthread.h>
+#include <thread>
+#define MAX_NUM_THREADS 10
+
+typedef struct {
+    int active;
+    thread_info_t data;
+    pthread_t thread;
+} pthread_info_t;
+
+static pthread_info_t threads[MAX_NUM_THREADS];
+
+/***** Cache *****/
+#include "LocalStorage.hpp"
 LocalStorage *ls;
 
-typedef struct _sgx_errlist_t {
-    sgx_status_t err;
-    const char *msg;
-    const char *sug; /* Suggestion */
-} sgx_errlist_t;
-
-/* Error code returned by sgx_create_enclave */
-static sgx_errlist_t sgx_errlist[] = {
-    {
-        SGX_ERROR_UNEXPECTED,
-        "Unexpected error occurred.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_PARAMETER,
-        "Invalid parameter.",
-        NULL
-    },
-    {
-        SGX_ERROR_OUT_OF_MEMORY,
-        "Out of memory.",
-        NULL
-    },
-    {
-        SGX_ERROR_ENCLAVE_LOST,
-        "Power transition occurred.",
-        "Please refer to the sample \"PowerTransition\" for details."
-    },
-    {
-        SGX_ERROR_INVALID_ENCLAVE,
-        "Invalid enclave image.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_ENCLAVE_ID,
-        "Invalid enclave identification.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_SIGNATURE,
-        "Invalid enclave signature.",
-        NULL
-    },
-    {
-        SGX_ERROR_OUT_OF_EPC,
-        "Out of EPC memory.",
-        NULL
-    },
-    {
-        SGX_ERROR_NO_DEVICE,
-        "Invalid SGX device.",
-        "Please make sure SGX module is enabled in the BIOS, and install SGX driver afterwards."
-    },
-    {
-        SGX_ERROR_MEMORY_MAP_CONFLICT,
-        "Memory map conflicted.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_METADATA,
-        "Invalid enclave metadata.",
-        NULL
-    },
-    {
-        SGX_ERROR_DEVICE_BUSY,
-        "SGX device was busy.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_VERSION,
-        "Enclave version was invalid.",
-        NULL
-    },
-    {
-        SGX_ERROR_INVALID_ATTRIBUTE,
-        "Enclave was not authorized.",
-        NULL
-    },
-    {
-        SGX_ERROR_ENCLAVE_FILE_ACCESS,
-        "Can't open enclave file.",
-        NULL
-    },
-};
-
-void print_error_message(sgx_status_t ret)
-{
-    size_t idx = 0;
-    size_t ttl = sizeof sgx_errlist/sizeof sgx_errlist[0];
-
-    for (idx = 0; idx < ttl; idx++) {
-        if(ret == sgx_errlist[idx].err) {
-            if(NULL != sgx_errlist[idx].sug)
-                printf("Info: %s\n", sgx_errlist[idx].sug);
-            printf("Error: %s\n", sgx_errlist[idx].msg);
-            break;
-        }
-    }
-    
-    if (idx == ttl)
-    	printf("Error code is 0x%X. Please refer to the \"Intel SGX SDK Developer Reference\" for more details.\n", ret);
-}
-
-/* OCALL functions */
-
-void ocall_print_string(const char *str) {
-    printf("%s", str);
-}
-
-void ocall_print_character(const char *c) {
-        printf("%c", *c);
-}
-
-void ocall_print_uint(uint64_t i) {
-    printf("%lu", i);
-}
-
+/***** OCALL functions *****/
 uint8_t ocall_uploadBucket(unsigned char* serialized_bucket, uint32_t bucket_size, uint32_t label, unsigned char* hash, uint32_t hash_size, uint32_t size_for_level, uint8_t recursion_level) {
     ls->uploadBucket(label, serialized_bucket, size_for_level, hash, hash_size, recursion_level);
     return 0;
@@ -156,8 +70,8 @@ void ocall_buildFetchChildHash(uint32_t left, uint32_t right, unsigned char* lch
 }
 
 
-/* functions... */
-uint8_t computeRecursionLevels(uint32_t max_blocks, uint32_t recursion_data_size, uint64_t onchip_posmap_memory_limit) {
+/***** functions... *****/
+uint8_t compute_recursion_levels(uint32_t max_blocks, uint32_t recursion_data_size, uint64_t onchip_posmap_memory_limit) {
     uint8_t recursion_levels = 1;
     uint8_t x;
 
@@ -177,144 +91,124 @@ uint8_t computeRecursionLevels(uint32_t max_blocks, uint32_t recursion_data_size
     return recursion_levels;
 }
 
-uint32_t OC_New(uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t pZ) {
+void *ssl_connection_handler(void *data)
+{
+    unsigned long thread_id = pthread_self();
+    thread_info_t *thread_info = (thread_info_t *)data;
+
+    ecall_ssl_connection_handler(global_eid, thread_id, thread_info);    
+
+    mbedtls_net_free(&thread_info->client_fd);
+    return (NULL);
+}
+
+static int thread_create(mbedtls_net_context *client_fd)
+{
+    int ret, i;
+
+    for (i = 0; i < MAX_NUM_THREADS; i++) {
+        if (threads[i].active == 0)
+            break;
+
+        // wait for termination and clean it up
+        if (threads[i].data.thread_complete == 1) {
+            pthread_join(threads[i].thread, NULL);
+            memset(&threads[i], 0, sizeof(pthread_info_t));
+            break;
+        }
+    }
+
+    if (i == MAX_NUM_THREADS)
+        return (-1);
+
+    threads[i].active = 1;
+    threads[i].data.config = NULL;
+    threads[i].data.thread_complete = 0;
+    memcpy(&threads[i].data.client_fd, client_fd, sizeof(mbedtls_net_context));
+
+    if ((ret = pthread_create(&threads[i].thread, NULL, ssl_connection_handler, &threads[i].data)) != 0) {
+        return (ret);
+    }
+
+    return (0);
+}
+
+sgx_status_t czt_create_oram(uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t pZ) {
     sgx_status_t sgx_return = SGX_SUCCESS;
     uint8_t ret;
     int8_t recursion_levels;
 
     ls = new LocalStorage(); 
 
-    recursion_levels = computeRecursionLevels(max_blocks, recursion_data_size, MEM_POSMAP_LIMIT);
+    recursion_levels = compute_recursion_levels(max_blocks, recursion_data_size, MEM_POSMAP_LIMIT);
     
     uint32_t D = (uint32_t)ceil(log((double)max_blocks/pZ) / log((double)2));
     ls->setParams(max_blocks, D, pZ, stash_size, data_size + ADDITIONAL_METADATA_SIZE, recursion_data_size + ADDITIONAL_METADATA_SIZE, recursion_levels);
     
     sgx_return = ecall_createNewORAM(global_eid, &ret, max_blocks, data_size, stash_size, recursion_data_size, recursion_levels, pZ);
+    sgx_return = ecall_ssl_conn_init(global_eid);
     
-    if(sgx_return == SGX_SUCCESS) 
-        return 1;
-    else {
-        print_error_message(sgx_return);
-        return 0;
-    }
+    return sgx_return;
 }
 
-uint32_t OC_Access(unsigned char *encrypted_request, unsigned char *encrypted_response, unsigned char *tag_in, unsigned char* tag_out, uint32_t request_size, uint32_t response_size, uint32_t tag_size) {
-    sgx_status_t sgx_return = SGX_SUCCESS;
-    uint8_t ret;
-
-    sgx_return = ecall_accessInterface(global_eid, encrypted_request, encrypted_response, tag_in, tag_out, request_size, response_size, tag_size);
-    if(sgx_return == SGX_SUCCESS) 
-        return 1;
-    else {
-        print_error_message(sgx_return);
-        return 0;
-    }
-}
-
-/* Application entry */
-int main(int argc, char *argv[]) {
-    sgx_launch_token_t token = {0};
-    int updated, ret;
-    sgx_status_t ecall_status, enclave_status;
+/***** Application entry point *****/
+int main(void) {
+    int ret;
 
 #ifdef OC_DEBUG
     printf("Debug - ON\n");
     printf("----- initialize -----\n\n");
 #endif
 
-    enclave_status = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &updated, &global_eid, NULL);
-    if(enclave_status != SGX_SUCCESS) {
-        print_error_message(enclave_status);
-        return 0;
-    } 
+    /***** initialize SGX *****/    
+    if (0 != initialize_enclave(&global_eid)) {
+        exit(-1);
+    }
 
 #ifdef OC_DEBUG
     printf("[Untrusted/App] Enclave successfully created\n");
 #endif
-    /* Utilize edger8r attributes */
-    edger8r_array_attributes();    
-    edger8r_pointer_attributes();
-    edger8r_type_attributes();
-    edger8r_function_attributes();
+
+    /***** initialize CZT *****/    
+    czt_create_oram(MAX_BLOCKS, DATA_SIZE, PARAM_STASH_SIZE, RECURSION_DATA_SIZE, SIZE_Z);
     
-    /* Utilize trusted libraries */
-    ecall_libc_functions();
-    ecall_libcxx_functions();
-    ecall_thread_functions();  
-    
-    uint32_t oblivious_cache = OC_New(MAX_BLOCKS, DATA_SIZE, PARAM_STASH_SIZE, RECURSION_DATA_SIZE, SIZE_Z);
-    
-    //RandomRequestSource reqsource;
-    //uint32_t *rs = reqsource.GenerateRandomSequence(REQUEST_LENGTH,MAX_BLOCKS-1);
+    /***** initialize threads *****/
+    memset(threads, 0, sizeof(threads));
 
-    unsigned char rw;
-    uint32_t encrypted_request_size;
-    //request_size = ID_SIZE_IN_BYTES + DATA_SIZE;
-    request_size = MAX_DID_SIZE + DATA_SIZE;
-    response_size = DATA_SIZE;
+    /***** initialize mbedtls *****/
+    mbedtls_net_context listen_fd, client_fd;
+    ecall_ssl_conn_init(global_eid);    
 
-    tag_in = (unsigned char *)malloc(TAG_SIZE);
-    tag_out = (unsigned char *)malloc(TAG_SIZE);
-    did = (unsigned char*)malloc(MAX_DID_SIZE + 1);
-    data_in = (unsigned char *)malloc(DATA_SIZE + 1);
-    data_dummy = (unsigned char *)("dummydiddummydiddummydiddummydid");
-    data_out = (unsigned char *)malloc(DATA_SIZE + 1);
+    if ((ret == mbedtls_net_bind(&listen_fd, NULL, "4433", MBEDTLS_NET_PROTO_TCP)) != 0) {
+        printf(" failed\n ! mbedtls_net_bind returned %d\n\n", ret);
+        std::exit(-1);
+    }
 
-    encrypted_request_size = computeCiphertextSize(DATA_SIZE);
-    encrypted_request = (unsigned char *)malloc(encrypted_request_size);				
-    encrypted_response = (unsigned char *)malloc(response_size);    
-
-    for(uint8_t i = 0; i < REQUEST_LENGTH; i++) {
-#ifdef OC_DEBUG    
-        printf("\n----- Access [%d] -----\n\n", i);
-#endif
-        printf("[Untrusted/App] Select operation(w = write, r = read): ");
-        rw = fgetc(stdin);
-        fgetc(stdin);
-
-        printf("[Untrusted/App] Input did: ");
-        fgets((char *)did, MAX_DID_SIZE + 1, stdin);
-        fgetc(stdin);
-
-        if(rw == 'w') {
-            printf("[Untrusted/App] Input did_docs: ");
-            fgets((char *)data_in, DATA_SIZE + 1, stdin);
-            fgetc(stdin);
-        }
-        else {
-            memcpy(data_in, data_dummy, DATA_SIZE + 1);
+    while(true) {
+        if(mbedtls_net_set_nonblock(&listen_fd) != 0)
+            printf(" failed\n ! can't set nonblock for the listend socket\n");
+        
+        ret = mbedtls_net_accept(&listen_fd, &client_fd, NULL, 0, NULL);
+        if(ret == MBEDTLS_ERR_SSL_WANT_READ) {
+            ret = 0;
+            continue;
+        } else if(ret != 0) {
+            printf(" failed\n ! mbedtls_net_accept returned -0x%04x\n", ret);
+            break;
         }
 
-        //encryptRequest(8, rw, data_in, DATA_SIZE, encrypted_request, tag_in, encrypted_request_size);
-        encryptRequest(did, rw, data_in, DATA_SIZE, encrypted_request, tag_in, encrypted_request_size);
-#ifdef OC_DEBUG
-        printf("\n[Untrusted/App] Request successfully encrypted\n");
-        printf("[Untrusted/App] Querying encrypted request\n");
-#endif
-        OC_Access(encrypted_request, encrypted_response, tag_in, tag_out, encrypted_request_size, response_size, TAG_SIZE);
-#ifdef OC_DEBUG
-        printf("[Untrusted/App] Decrypting response\n");
-#endif
-        extractResponse(encrypted_response, tag_out, response_size, data_out);
-        data_out[DATA_SIZE] = '\0';
-#ifdef OC_DEBUG
-        printf("[Untrusted/App] Response successfully decrypted\n");
-        printf("[Untrusted/App] response: %s\n", data_out);
-#endif
-        memset(data_out, 0x00, DATA_SIZE);
+        if ((ret = thread_create(&client_fd)) != 0)
+        {
+            printf("  [ main ]  failed: thread_create returned %d\n", ret);
+            mbedtls_net_free(&client_fd);
+            continue;
+        }
+        ret = 0;
     }
 
 #ifdef OC_DEBUG
     printf("\n----- finalize -----\n\n");
 #endif
-
-    free(encrypted_request);
-    free(encrypted_response);
-    free(tag_in);
-    free(tag_out);
-    free(data_in);
-    free(data_out);
 
     /* Destroy the enclave */
     sgx_destroy_enclave(global_eid);
@@ -322,5 +216,6 @@ int main(int argc, char *argv[]) {
 #ifdef OC_DEBUG
         printf("[Untrusted/App] Enclave successfully destroyed\n\n");
 #endif
+
     return 0;
 }

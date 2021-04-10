@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#define OC_DEBUG
+//#define OC_DEBUG
 
 #define ADDITIONAL_METADATA_SIZE    24
 #define ADDITIONAL_METADATA_SUZE_UNTRUSTED          28
