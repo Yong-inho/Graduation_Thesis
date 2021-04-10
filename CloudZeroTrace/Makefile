@@ -134,7 +134,7 @@ endif
 Crypto_Library_Name := sgx_tcrypto
 SGXSSL_INCLUDE_PATH := /home/sslab/intel-sgx-ssl/Linux/package/include
 
-Enclave_Cpp_Files := Enclave/Enclave.cpp Enclave/DID_Map.cpp Enclave/ssl_handler.cpp Enclave/PathORAM/Block.cpp Enclave/PathORAM/Bucket.cpp Enclave/PathORAM/Enclave_utils.cpp Enclave/PathORAM/ORAMTree.cpp Enclave/PathORAM/PathORAM.cpp Enclave/PathORAM/Stash.cpp $(wildcard Enclave/Edger8rSyntax/*.cpp) $(wildcard Enclave/TrustedLibrary/*.cpp)
+Enclave_Cpp_Files := Enclave/Enclave.cpp Enclave/ssl_handler.cpp Enclave/PathORAM/Block.cpp Enclave/PathORAM/Bucket.cpp Enclave/PathORAM/Enclave_utils.cpp Enclave/PathORAM/ORAMTree.cpp Enclave/PathORAM/PathORAM.cpp Enclave/PathORAM/Stash.cpp Enclave/PathORAM/ID_Map.cpp $(wildcard Enclave/Edger8rSyntax/*.cpp) $(wildcard Enclave/TrustedLibrary/*.cpp)
 Enclave_Include_Paths := -IInclude -IEnclave -IEnclave/PathORAM -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -Imbedtls_SGX-2.6.0/include
 
 Enclave_C_Flags := $(Enclave_Include_Paths) -nostdinc -fvisibility=hidden -fpie -ffunction-sections -fdata-sections $(MITIGATION_CFLAGS)

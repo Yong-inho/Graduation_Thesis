@@ -7,12 +7,22 @@ void PathORAM::Create(uint8_t Z, uint32_t max_blocks, uint32_t data_size, uint32
 void PathORAM::initialize(uint8_t Z, uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t recursion_levels) {
     ORAMTree::setParams(Z, max_blocks, data_size, stash_size, recursion_data_size, recursion_levels);
     ORAMTree::initialize();
+    IDmap->initialize();
 }
 
-void PathORAM::Access(uint32_t id, char op_type, unsigned char *data_in, unsigned char *data_out) {
+void PathORAM::Access(char *idx, char op_type, unsigned char *data_in, unsigned char *data_out) {
     uint32_t prev_sampled_leaf = -1;
-    if(id <= MAX_BLOCKS)
-        access(id, -1, op_type, recursion_levels - 1, data_in, data_out, &prev_sampled_leaf);
+    uint32_t id;
+
+    // mutex lock!
+
+    id = IDmap->convertIdxToBlockID(idx, op_type);
+
+    if(id <= MAX_BLOCKS) {
+        ;// replacement policy
+    }
+
+    access(id, -1, op_type, recursion_levels - 1, data_in, data_out, &prev_sampled_leaf);
 }
 
 uint32_t PathORAM::access(uint32_t id, uint32_t position_in_id, char op_type, uint8_t level, unsigned char *data_in, unsigned char *data_out, uint32_t *prev_sampled_leaf) {
@@ -22,9 +32,6 @@ uint32_t PathORAM::access(uint32_t id, uint32_t position_in_id, char op_type, ui
     uint32_t newleaf;
     uint32_t newleaf_nextlevel = -1;
 
-    //sgx_status_t ocall_status;
-
-    //unsigned char random_value[ID_SIZE_IN_BYTES];
     uint32_t random_value;
 
     if(recursion_levels == 1) {

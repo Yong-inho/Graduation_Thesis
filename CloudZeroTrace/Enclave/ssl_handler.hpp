@@ -24,7 +24,6 @@
 #include "ssl_context.h"
 
 #include "PathORAM.hpp"
-#include "DID_Map.hpp"
 
 using std::string;
 
@@ -67,7 +66,7 @@ public:
         TLSConnectionHandler();
     }
     ~TLSConnectionHandler();
-    void handle(long int, thread_info_t *, PathORAM *, DIDMap *);
+    void handle(long int, thread_info_t *, PathORAM *);
 };
 
 #endif //MBEDTLS_SGX_SSL_SERVER_THREAD_H

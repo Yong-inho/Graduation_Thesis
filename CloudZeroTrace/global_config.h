@@ -8,7 +8,7 @@
 //#define OC_DEBUG
 
 #define ADDITIONAL_METADATA_SIZE    24
-#define ADDITIONAL_METADATA_SUZE_UNTRUSTED          28
+//#define ADDITIONAL_METADATA_SIZE_UNTRUSTED          28
 #define AES_GCM_BLOCK_SIZE_IN_BYTES 16
 #define HASH_LENGTH                 32
 #define ID_SIZE_IN_BYTES            4
@@ -18,7 +18,7 @@
 #define KEY_LENGTH                  16
 #define TAG_SIZE                    16
 
-#define MAX_DID_SIZE                8 // did
+#define MAX_IDX_SIZE                8 // did
 #define DATA_SIZE                   32 // did_docs
 #define MAX_BLOCKS                  128 // maximum capacity of PathORAM tree
 #define PARAM_STASH_SIZE            150 // It is typically sufficient to use 150 for PathORAM

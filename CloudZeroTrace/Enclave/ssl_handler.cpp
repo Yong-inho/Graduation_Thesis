@@ -168,11 +168,17 @@ TLSConnectionHandler::~TLSConnectionHandler()
 #endif
 }
 
-void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info, PathORAM *poram, DIDMap *DIDmap) {
-    int ret, len;
+void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info, PathORAM *poram) {
+    int ret, len, ocall_status;
     mbedtls_net_context *client_fd = &thread_info->client_fd;
     unsigned char buf[1024]; // let it go to <global_config.h>
     mbedtls_ssl_context ssl;
+
+    char op_type;
+    char idx[MAX_IDX_SIZE];
+    unsigned char* data_in;
+    //unsigned char data_out[DATA_SIZE];
+    unsigned char data_out[1024]; // ??????
 
     // thread local data
     mbedtls_ssl_config conf;
@@ -182,6 +188,7 @@ void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info
 
     /* Make sure memory references are valid */
     mbedtls_ssl_init(&ssl);
+    memset(data_out, '\0', 1024); // ????
 
     /* Get the SSL context ready */
     if ((ret = mbedtls_ssl_setup(&ssl, thread_info->config)) != 0)
@@ -231,15 +238,34 @@ void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info
         
         len = ret;
 
-        // TO DO: access to oram!
-        //poram->Access();
+        data_in = (unsigned char *)strstr((char *)buf, "czt:");
+        op_type = data_in[4];
+
+        int cnt = 0;
+
+        while(*data_in) {
+            if(*data_in == ':') 
+                cnt++;
+
+            data_in += 1;
+
+            if(cnt == 1)
+                memcpy(idx, data_in + 1, MAX_IDX_SIZE);
+
+            if(cnt == 3)
+                break;
+        }        
+
+        poram->Access(idx, op_type, data_in, data_out);
 
         if(ret > 0)
             break;
     } while (1);
 
     /* Write the 200 Response */
-    len = snprintf((char *)buf, sizeof buf, HTTP_RESPONSE, "hello?");
+    data_out[DATA_SIZE] = '\0';
+    len = snprintf((char *)buf, sizeof buf, HTTP_RESPONSE, data_out); // TO DO : replace hello to contents
+    
     while ((ret = mbedtls_ssl_write(&ssl, buf, len)) <= 0)
     {
         if (ret == MBEDTLS_ERR_NET_CONN_RESET)

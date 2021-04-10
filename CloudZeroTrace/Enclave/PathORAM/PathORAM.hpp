@@ -2,7 +2,7 @@
 #define __PATHORAM_ENCLAVE_HPP__
 
 #include "Block.hpp"
-//#include "Bucket.hpp"
+#include "ID_Map.hpp"
 #include "Enclave_utils.hpp"
 
 #include "ORAMTree.hpp"
@@ -10,6 +10,8 @@
 
 class PathORAM: public ORAMTree, public ORAM_Interface {
     private:
+        IDMap *IDmap = new IDMap();
+
         void initialize(uint8_t Z, uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t recursion_levels);
         
         // Access Functions
@@ -22,7 +24,7 @@ class PathORAM: public ORAMTree, public ORAM_Interface {
         PathORAM(){};
         
         // Virtual Fucntions, inherited from ORAMTree Class
-        void Access(uint32_t id, char op_type, unsigned char *data_in, unsigned char *data_out) override;
+        void Access(char *idx, char op_type, unsigned char *data_in, unsigned char *data_out) override;
         void Create(uint8_t Z, uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t recursion_levels) override;
 };
 
