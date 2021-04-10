@@ -10,6 +10,7 @@
 
 class PathORAM: public ORAMTree, public ORAM_Interface {
     private:
+        bool lock = false;
         IDMap *IDmap = new IDMap();
 
         void initialize(uint8_t Z, uint32_t max_blocks, uint32_t data_size, uint32_t stash_size, uint32_t recursion_data_size, uint8_t recursion_levels);
