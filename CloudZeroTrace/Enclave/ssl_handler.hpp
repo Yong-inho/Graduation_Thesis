@@ -66,7 +66,7 @@ public:
         TLSConnectionHandler();
     }
     ~TLSConnectionHandler();
-    void handle(long int, thread_info_t *, PathORAM *);
+    void handle(long int, thread_info_t *, PathORAM *, sgx_thread_mutex_t *);
 };
 
 #endif //MBEDTLS_SGX_SSL_SERVER_THREAD_H

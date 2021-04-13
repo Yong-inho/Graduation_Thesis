@@ -14,12 +14,6 @@ void PathORAM::Access(char *idx, char op_type, unsigned char *data_in, unsigned 
     uint32_t prev_sampled_leaf = -1;
     uint32_t id;
 
-    while(lock) {
-        ;
-    }
-
-    lock = true;
-    
     id = IDmap->convertIdxToBlockID(idx, op_type);
 
     if(id <= MAX_BLOCKS) {
@@ -27,8 +21,6 @@ void PathORAM::Access(char *idx, char op_type, unsigned char *data_in, unsigned 
     }
 
     access(id, -1, op_type, recursion_levels - 1, data_in, data_out, &prev_sampled_leaf);
-
-    lock = false;
 }
 
 uint32_t PathORAM::access(uint32_t id, uint32_t position_in_id, char op_type, uint8_t level, unsigned char *data_in, unsigned char *data_out, uint32_t *prev_sampled_leaf) {

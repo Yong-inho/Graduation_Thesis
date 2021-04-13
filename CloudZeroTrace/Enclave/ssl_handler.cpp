@@ -168,7 +168,7 @@ TLSConnectionHandler::~TLSConnectionHandler()
 #endif
 }
 
-void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info, PathORAM *poram) {
+void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info, PathORAM *poram, sgx_thread_mutex_t *mutex) {
     int ret, len, ocall_status;
     mbedtls_net_context *client_fd = &thread_info->client_fd;
     unsigned char buf[1024]; // let it go to <global_config.h>
@@ -256,7 +256,9 @@ void TLSConnectionHandler::handle(long int thread_id, thread_info_t *thread_info
                 break;
         }        
 
+        sgx_thread_mutex_lock(mutex);
         poram->Access(idx, op_type, data_in, data_out);
+        sgx_thread_mutex_unlock(mutex);
 
         if(ret > 0)
             break;
