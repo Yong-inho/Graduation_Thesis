@@ -17,6 +17,9 @@ int IDMap::convertIdxToBlockID(char *idx, char op_type) {
     }
 
     if(ret == -1 && op_type == 'w') {
+        if(map_cnt == MAX_BLOCKS) {
+            map_cnt = 0;
+        }
         ID_map[map_cnt].block_id = map_cnt;
         ID_map[map_cnt].idx = (char *)malloc(MAX_IDX_SIZE);
         memcpy(ID_map[map_cnt].idx, idx, MAX_IDX_SIZE);

@@ -96,8 +96,6 @@ void *ssl_connection_handler(void *data)
     unsigned long thread_id = pthread_self();
     thread_info_t *thread_info = (thread_info_t *)data;
 
-    sleep(2);
-
     ecall_ssl_connection_handler(global_eid, thread_id, thread_info);    
 
     mbedtls_net_free(&thread_info->client_fd);
